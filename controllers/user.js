@@ -1,21 +1,33 @@
+//importation de bcrypt pour hasher le mot de passe
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken')
-require('dotenv').config();
-
+//importation de crypto-js pour chiffrer l'email
+const cryptojs = require('crypto-js');
+//importation de password-validator
+const passwordValidator = require('password-validator');
+//importation de jsonwebtoken 
+const jwt = require('jsonwebtoken');
+//importation modèle de la base de donnée models/User.js
 const User = require('../models/User');
-
+//signup pour enregistrer le nouvel utilisateur dans la base de donnée
 exports.signup = (req, res, next) => {
-    console.log('coucou');
+    //chiffrer l'email avant de l'envoyer dans la base de donnée avec une variable dans .env
+    const emailcryptojs = cryptojs.HmacSHA256(req.body.email, `${process.env.CRYPTOJS_EMAIL}`).toString();
+    //hasher le mot de passe avant de l'envoyer dans la base de donnée
+    //salt = 10, combien de foit sera exécuté l'algorithme de hashage
     bcrypt.hash(req.body.password, 10)
         .then(hash => {
+            //ce qui va être enregistré dans MongoDb (id + mot de passe)
             const user = new User({
-                email: req.body.email,
+                email: emailcryptojs,
                 password: hash
             });
+            //envoyer le user dans la base de donnée
             user.save()
+                /*status 201 (requête reussi nouvelle ressource créée*/
                 .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
                 .catch(error => {
                     console.log(error);
+                    /*statue 400 requête incorrecte*/
                     res.status(400).json({ error })
                 }
                 );
@@ -25,24 +37,37 @@ exports.signup = (req, res, next) => {
             res.status(500).json({ error })
         });
 };
-
+//login pour que l'utilisateur puisse se connecter
 exports.login = (req, res, next) => {
-    User.findOne({ email: req.body.email })
+    //chiffrer l'email de la requête
+    const emailcryptojs = cryptojs.HmacSHA256(req.body.email, `${process.env.CRYPTOJS_EMAIL}`).toString();
+    //chercher dans la base de donnée si l'utilisateur est bien présent
+    User.findOne({ email: emailcryptojs })
         .then(user => {
+            //si le mail de l'user est null, c'est qu'il n'existe pas
             if (user === null) {
                 res.status(401).json({ message: 'Paire identifiant/mot de passe incorrecte' })
             } else {
+                //contrôle le mot de passe envoyé par l'utilisateur
                 bcrypt.compare(req.body.password, user.password)
                     .then(valid => {
+                        //si le mot de passe est incorrect
+                        //fonction inversé si le mot de passe est true, !valid = false
                         if (!valid) {
                             res.status(401).json({ message: 'Paire identifiant/mot de passe incorrecte' })
                         } else {
+                            //sinon le mot de passe est correct
+                            //envoie  dans la responce du server du userId et du token auth
                             res.status(200).json({
+                                //encodage du userId pour la création  de nouveau objet
                                 userId: user._id,
                                 token: jwt.sign(
+                                    //3 arguments
                                     { userId: user._id },
-                                    'RANDOM_TOKEN_SECRET',
-                                    { expiresIn: '24h'}
+                                    //clé de chiffrement dans .env
+                                    `${process.env.JWT_TOKEN_SECRET}`,
+                                    //durée de validité de la clé token
+                                    { expiresIn: '12h' }
                                 )
                             })
                         }

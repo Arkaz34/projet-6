@@ -1,7 +1,8 @@
+//importation de models/modelSauce
 const ModelsSauce = require('../models/modelsSauce');
+//
 const fs = require('fs');
-
-
+//
 exports.getSauce = (req, res, next) => {
     ModelsSauce.find()
     .then(sauces => res.status(200).json(sauces))
@@ -14,14 +15,17 @@ exports.getSauce = (req, res, next) => {
 
 exports.getSauceById = (req, res, next) => {
     ModelsSauce.findOne({_id: req.params.id})
-    .then(sauces => res.status(200).json(sauces))
+    .then(sauces => {
+        console.log(sauces);
+        res.status(200).json(sauces)
+    })
     .catch(error => {
         console.log(error);
         res.status(400).json({error})
     });  
     console.log('Sauce particulière récupérée'); 
 };
-
+//create permet la création de ressources (sauces)
 exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
     delete sauceObject._id;
@@ -41,22 +45,39 @@ exports.createSauce = (req, res, next) => {
     });
     console.log('Sauce initialisée');
 };
-
+//modification sauce
 exports.modifySauce = (req, res ,next) => {
     const sauceObject = req.file ?
     {
         ...JSON.parse(req.body.sauce),
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : {...req.body};
+    if(req.file){
+        ModelsSauce.findOne({_id: req.params.id})
+        .then(sauce => {
+            if(res.locals.userId != sauce.userId){
+                res.status(403).json({message : 'Utilisateur non autoriser !'})
+            }
+            const fileName = sauce.imageUrl.split("/images/")[1];
+            fs.unlink(`images/${fileName}`, () => {
+                console.log('images supprimer');
+            })
+        })
+    }
+    //updateOne permet la modification de ressources
     ModelsSauce.updateOne({_id: req.params.id}, {...sauceObject, _id: req.params.id})
     .then(() => res.status(200).json({message: 'Sauce modifiée'}))
     .catch(error => res.status(400).json({error}));  
     console.log('Sauce modifiée'); 
 };
-
+//supprimer une sauce
+//delete permet la suppression de ressources
 exports.deleteSauce = (req, res, next) => {
     ModelsSauce.findOne({_id: req.params.id})
     .then(sauce => {
+        if(res.locals.userId != sauce.userId){
+            res.status(403).json({message : 'Utilisateur non autoriser !'})
+        }
         const filename = sauce.imageUrl.split('/images/')[1];
         fs.unlink(`images/${filename}`, () => {
             ModelsSauce.deleteOne({_id: req.params.id})
@@ -70,7 +91,7 @@ exports.deleteSauce = (req, res, next) => {
     })
     .catch(error => res.status(500).json({error}));
 };
-
+//like sauce
 exports.likeSauce = (req, res, next) => {
     if (req.body.like == 1) {
         ModelsSauce.updateOne(

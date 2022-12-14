@@ -1,6 +1,6 @@
 //importation de mongoose
 const mongoose = require('mongoose');
-// //création du shéma de donné
+// //création du shéma de donné pour sauces
 const modelsSauceSchema = mongoose.Schema({
   userId: { type: String, required: true },
   name: { type: String, required: true },
@@ -11,8 +11,8 @@ const modelsSauceSchema = mongoose.Schema({
   heat: { type: Number, required: true },
   likes: { type: Number, default: 0 },
   dislikes: { type: Number, default: 0 },
-  usersLiked: { type: [String]},
-  usersDisLiked: { type: [String]}
+  usersLiked: { type: [String], required: false},
+  usersDisliked: { type: [String], required: false}
 });
-
+//exportation du module
 module.exports = mongoose.model('ModelsSauces', modelsSauceSchema);

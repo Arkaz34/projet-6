@@ -1,7 +1,7 @@
 //-------------------
 //créer un server
 //-------------------
-//créer un programe qui va écoute, attendre des requêtes http et qui va y répondre
+//créer un programe qui va écouter, attendre des requêtes http et qui va y répondre
 /*importer le package http de node avec require qui permet d'inclure des modules 
 qui existent dans des fichiers séparés*/
 const http = require('http');
@@ -42,8 +42,8 @@ const errorHandler = error => {
       throw error;
   }
 };
-/*La méthode createServer() prend en argument la fonction qui sera appelé à chaque requête reçu
-par le server*/ 
+/*La méthode createServer() prend en argument la fonction 
+qui sera appelé à chaque requête reçu par le server*/ 
 const server = http.createServer(app);
 
 server.on('error', errorHandler);
@@ -55,3 +55,5 @@ server.on('listening', () => {
 //server prêt
 //le serveur doit écouter, attendre les requêtes envoyées sur le port 3000
 server.listen(port);
+
+//la requête est envoyée à app.js
