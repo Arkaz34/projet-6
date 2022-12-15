@@ -1,4 +1,3 @@
 images
-.env.local
-node_modules2
-
+.env
+node_modules
