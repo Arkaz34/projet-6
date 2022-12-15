@@ -8,9 +8,9 @@ const password = require('../middleware/password');
 const router = express.Router();
 //importation du controllers/user.js
 const userCtrl = require('../controllers/user');
-//route (endpoint) signup
+//route (endpoint) signup pour créer une fiche user
 router.post('/signup',password, userCtrl.signup);
-//route (endpoint) login
+//route (endpoint) login  
 router.post('/login', userCtrl.login);
 //exportation du module
 module.exports = router;

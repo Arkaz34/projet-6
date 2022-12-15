@@ -10,7 +10,7 @@ module.exports = (req, res, next) => {
         const decodedToken = jwt.verify(token, `${process.env.JWT_TOKEN_SECRET}`);
         //vérification du user
         const userId = decodedToken.userId;
-        //si userId 
+        //vérifie si user est le même que celui déjà créé 
         if (req.body.userId && req.body.userId !== userId) {
             throw 'User Id non valable'
         } else {

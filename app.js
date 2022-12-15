@@ -34,11 +34,11 @@ app.use((req, res, next) => {
 });
 //transformer le corps ( body ) ne json objet javascript utilisable
 app.use(express.json()); 
-//route d'authentification vers routes/user.js
+//route d'authentification user
 app.use('/api/auth', userRoutes);
-//route vers images
+//route images
 app.use('/images', express.static(path.join(__dirname, 'images')));
-//routes vers routes/sauces.js
+//route routes/sauces.js
 app.use('/api/sauces', ModelsSauceRoutes);
 //expression de app.js pour pouvoir y accéder depuis un autre fichier
 module.exports = app;
