@@ -1,6 +1,6 @@
 //importation de mongoose
 const mongoose = require('mongoose');
-// //création du shéma de donné pour sauces
+//le models : donnée utilisateur pour la page frontend
 const modelsSauceSchema = mongoose.Schema({
   userId: { type: String, required: true },
   name: { type: String, required: true },

@@ -7,7 +7,9 @@ const express = require('express');
 les documents de la collection de la base de données MongoDB*/
 //importation connexion base de donnée MongoDb
 const mongoose = require('mongoose');
+//importation node.js utilitaires pour travailler avec les chemins de fichiers et de répertoires
 const path = require('path');
+//importation routes/sauces.js
 const ModelsSauceRoutes = require('./routes/sauces');
 //importation des routes 
 const userRoutes = require('./routes/user');
@@ -34,9 +36,9 @@ app.use((req, res, next) => {
 });
 //transformer le corps ( body ) ne json objet javascript utilisable
 app.use(express.json()); 
-//route d'authentification user
+//route d'authentification 
 app.use('/api/auth', userRoutes);
-//route images
+//pour accéder aux images du dossier images
 app.use('/images', express.static(path.join(__dirname, 'images')));
 //route routes/sauces.js
 app.use('/api/sauces', ModelsSauceRoutes);
