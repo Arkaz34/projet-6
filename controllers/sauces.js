@@ -1,28 +1,19 @@
 //importation du models de la base de donnée mongoDb
 const ModelsSauce = require('../models/modelsSauce');
-//importation du module fs de node pour acccéder aux fichiers du serveur
+//importation du module fs de node pour acccéder aux fichiers du serveur pour les supprimer 
 const fs = require('fs');
 //retourne l'objet au document html
 exports.getSauce = (req, res, next) => {
     ModelsSauce.find()
         .then(sauces => res.status(200).json(sauces))
-        .catch(error => {
-            console.log(error);
-            res.status(400).json({ error })
-        });
+        .catch(error => res.status(400).json({ error }));
     console.log('Sauce récupérée');
 };
 //retourne les détails de l'objet au document html
 exports.getSauceById = (req, res, next) => {
     ModelsSauce.findOne({ _id: req.params.id })
-        .then(sauces => {
-            console.log(sauces);
-            res.status(200).json(sauces)
-        })
-        .catch(error => {
-            console.log(error);
-            res.status(400).json({ error })
-        });
+        .then(sauces => res.status(200).json(sauces))
+        .catch(error => res.status(400).json({ error }));
     console.log('Sauce particulière récupérée');
 };
 //create permet la création de ressources (sauces)
@@ -31,6 +22,7 @@ exports.createSauce = (req, res, next) => {
     delete sauceObject._id;
     const sauce = new ModelsSauce({
         ...sauceObject,
+        //récupèrer le segment de base de l'url
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
         likes: 0,
         dislikes: 0,
@@ -39,10 +31,7 @@ exports.createSauce = (req, res, next) => {
     });
     sauce.save()
         .then(() => res.status(201).json({ message: "Sauce ajoutée" }))
-        .catch(error => {
-            console.log(error);
-            res.status(400).json({ error })
-        });
+        .catch(error => res.status(400).json({ error }));
     console.log('Sauce initialisée');
 };
 //modification sauce
@@ -75,7 +64,7 @@ exports.modifySauce = (req, res, next) => {
 //supprimer une sauce
 //delete permet la suppression de ressources
 exports.deleteSauce = (req, res, next) => {
-    //récupérer l'img à supprimer pour pouvoir l'effacer du serveur
+    //interroger un document dans la collection avec findOne
     ModelsSauce.findOne({ _id: req.params.id })
         .then(sauce => {
             //contrôle du userId pour donner accés à la supression
@@ -88,10 +77,7 @@ exports.deleteSauce = (req, res, next) => {
             fs.unlink(`images/${filename}`, () => {
                 ModelsSauce.deleteOne({ _id: req.params.id })
                     .then(() => res.status(200).json({ message: 'Sauce supprimée' }))
-                    .catch(error => {
-                        console.log(error);
-                        res.status(400).json({ error })
-                    });
+                    .catch(error => res.status(400).json({ error }));
                 console.log('Sauce supprimée');
             });
         })
@@ -107,10 +93,7 @@ exports.likeSauce = (req, res, next) => {
             $inc: { likes: +1 }}
         )
             .then(() => res.status(200).json({ message: 'Sauce liké !' }))
-            .catch(error => {
-                console.log(error); 
-                res.status(400).json({ error })
-            });
+            .catch(error => res.status(400).json({ error }));
     }
     //like = 0 pas de like
     if (req.body.like == 0) {
@@ -133,17 +116,11 @@ exports.likeSauce = (req, res, next) => {
                         $inc: { dislikes: -1 }}
                     )
                         .then(() => res.status(200).json({ message: 'Cette sauce ne vous intéresse plus !' }))
-                        .catch(error => {
-                            console.log(error);
-                            res.status(400).json({ error })
-                        });
+                        .catch(error => res.status(400).json({ error }));
                 }
             //}
             })
-            .catch(error => {
-                console.log(error);
-                res.status(400).json({ error })
-            });
+            .catch(error => res.status(400).json({ error }));
     }
     if (req.body.like == -1) {
         //mise à jour objet bdd
@@ -153,10 +130,7 @@ exports.likeSauce = (req, res, next) => {
             $inc: { dislikes: +1 }}
         )
             .then(() => res.status(200).json({ message: 'Sauce disliké !' }))
-            .catch(error => {
-                console.log(error);
-                res.status(400).json({ error })
-            });
+            .catch(error => res.status(400).json({ error }));
         console.log('Sauce disliké !');
     }
     console.log(req.body);

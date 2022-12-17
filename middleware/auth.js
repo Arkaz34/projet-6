@@ -5,7 +5,7 @@ module.exports = (req, res, next) => {
     try {
         /*'authorization' peut être utilisé pour fournir des informations 
         d'identification qui authentifient un agent utilisateur auprès d'un serveur*/
-        //récupérer le token dans le headers aut : bearer (qui porte le token) token 
+        //récupérer le token dans le headers auth : bearer (qui porte le token) token 
         //et split permet de couper le caractère (bearer) à partir de l'espace
         const token = req.headers.authorization.split(' ')[1];
         //décoder le token qui contient l'userId et le temps d'expiration du token
@@ -22,7 +22,6 @@ module.exports = (req, res, next) => {
         }
         //si il y a des erreurs dans le try 
     } catch (error) {
-        console.log(error);
         res.status(401).json({ error: error | 'Requête non authentifiée' });
     }
 }

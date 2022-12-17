@@ -7,7 +7,8 @@ qui existent dans des fichiers séparés*/
 const http = require('http');
 //importer l'application "app" depuis le fichier backend
 const app = require('./app');
-//normalizePort renvoie un port valide, qu'il soit fourni sous la forme d'un numéro ou d'une chaîne
+//normalizePort renvoie un port valide, qu'il soit fourni 
+//sous la forme d'un numéro ou d'une chaîne
 const normalizePort = val =>{
   const port = parseInt(val, 10);
   if(isNaN(port)){
@@ -45,7 +46,6 @@ const errorHandler = error => {
 /*La méthode createServer() prend en argument la fonction 
 qui sera appelé à chaque requête reçu par le server*/ 
 const server = http.createServer(app);
-
 server.on('error', errorHandler);
 server.on('listening', () => {
   const address = server.address();
@@ -55,5 +55,3 @@ server.on('listening', () => {
 //server prêt
 //le serveur doit écouter, attendre les requêtes envoyées sur le port 3000
 server.listen(port);
-
-//la requête est envoyée à app.js

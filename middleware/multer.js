@@ -17,7 +17,6 @@ const storage = multer.diskStorage({
     filename: (req, file, callback) => {
         //supprimer les espaces dans le nom du fichier d'origine
         let name = file.originalname.split(' ').join('_');
-        console.log(file);
         const extention = MIME_TYPES[file.mimetype];
         //remplace .jpg par null
         name = name.replace("." + extention, "")
@@ -25,4 +24,4 @@ const storage = multer.diskStorage({
     }
 });
 //exportation du middleware multer
-module.exports = multer({storage}).single('image');
+    module.exports = multer({storage}).single('image');

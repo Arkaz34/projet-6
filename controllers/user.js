@@ -2,8 +2,6 @@
 const bcrypt = require('bcrypt');
 //importation de crypto-js pour chiffrer l'email
 const cryptojs = require('crypto-js');
-//importation de password-validator
-const passwordValidator = require('password-validator');
 //importation de jsonwebtoken 
 const jwt = require('jsonwebtoken');
 //importation modèle de la base de donnée models/User.js
@@ -12,30 +10,22 @@ const User = require('../models/User');
 exports.signup = (req, res, next) => {
     //chiffrer l'email avant de l'envoyer dans la base de donnée avec une variable dans .env
     const emailcryptojs = cryptojs.HmacSHA256(req.body.email, `${process.env.CRYPTOJS_EMAIL}`).toString();
-    //hasher le mot de passe avant de l'envoyer dans la base de donnée
-    //salt = 10, combien de foit sera exécuté l'algorithme de hashage
-    bcrypt.hash(req.body.password, 10)
-        .then(hash => {
-            //ce qui va être enregistré dans MongoDb (id + mot de passe)
-            const user = new User({
-                email: emailcryptojs,
-                password: hash
-            });
-            //envoyer le user dans la base de donnée
-            user.save()
-                /*status 201 (requête reussi nouvelle ressource créée*/
-                .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
-                .catch(error => {
-                    console.log(error);
-                    /*statue 400 requête incorrecte*/
-                    res.status(400).json({ error })
-                }
-                );
-        })
-        .catch(error => {
-            console.log(error);
-            res.status(500).json({ error })
-        });
+        //hasher le mot de passe avant de l'envoyer dans la base de donnée
+        //salt = 10, combien de foit sera exécuté l'algorithme de hashage
+        bcrypt.hash(req.body.password, 10)
+            .then(hash => {
+                //ce qui va être enregistré dans MongoDb (email + mot de passe)
+                const user = new User({
+                    email: emailcryptojs,
+                    password: hash
+                });
+                //envoyer l'user dans la base de donnée, sauf si l'adresse mail est déjà enregistrée
+                user.save()
+                    /*status 201 (requête reussi nouvelle ressource créée*/
+                    .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
+                    .catch(() => res.status(400).json({ message: "L'adresse mail renseignée est déjà utilisée." }));
+            })
+            .catch(error => res.status(500).json({ error }));
 };
 //login pour que l'utilisateur puisse se connecter
 exports.login = (req, res, next) => {
@@ -72,14 +62,8 @@ exports.login = (req, res, next) => {
                             })
                         }
                     })
-                    .catch(error => {
-                        console.log(error);
-                        res.status(500).json({ error });
-                    })
+                    .catch(error => res.status(500).json({ error }));
             }
         })
-        .catch(error => {
-            console.log(error);
-            res.status(500).json({ error })
-        })
+        .catch(error => res.status(500).json({ error }))
 };
