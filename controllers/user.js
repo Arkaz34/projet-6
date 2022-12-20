@@ -6,13 +6,21 @@ const cryptojs = require('crypto-js');
 const jwt = require('jsonwebtoken');
 //importation modèle de la base de donnée models/User.js
 const User = require('../models/User');
+//importationd'email validator
+const validator = require("email-validator");
 //signup pour enregistrer le nouvel utilisateur dans la base de donnée
 exports.signup = (req, res, next) => {
+    if(!validator.validate(req.body.email)){
+        console.log('coucou');
+        res.status(401).json({ message : 'email non valide' })
+        return false;
+    };
     //chiffrer l'email avant de l'envoyer dans la base de donnée avec une variable dans .env
     const emailcryptojs = cryptojs.HmacSHA256(req.body.email, `${process.env.CRYPTOJS_EMAIL}`).toString();
         //hasher le mot de passe avant de l'envoyer dans la base de donnée
         //salt = 10, combien de foit sera exécuté l'algorithme de hashage
-        bcrypt.hash(req.body.password, 10)
+        //importation du middleware password
+            bcrypt.hash(req.body.password, 10)
             .then(hash => {
                 //ce qui va être enregistré dans MongoDb (email + mot de passe)
                 const user = new User({
@@ -36,7 +44,7 @@ exports.login = (req, res, next) => {
         .then(user => {
             //si le mail de l'user est null, c'est qu'il n'existe pas
             if (user === null) {
-                res.status(401).json({ message: 'Paire identifiant/mot de passe incorrecte' })
+                res.status(401).json({ message: 'Utilisateur non trouvé !' })
             } else {
                 //contrôle le mot de passe envoyé par l'utilisateur
                 bcrypt.compare(req.body.password, user.password)
@@ -44,7 +52,7 @@ exports.login = (req, res, next) => {
                         //si le mot de passe est incorrect
                         //fonction inversé si le mot de passe est true, !valid = false
                         if (!valid) {
-                            res.status(401).json({ message: 'Paire identifiant/mot de passe incorrecte' })
+                            res.status(401).json({ message: 'Mot de passe incorrect !' })
                         } else {
                             //sinon le mot de passe est correct
                             //envoie  dans la responce du server du userId et du token auth

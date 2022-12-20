@@ -24,7 +24,7 @@ mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASS
     .then(() => console.log('Connexion à MongoDB réussie !'))
     .catch(() => console.log('Connexion à MongoDB échouée !'));
 //app.use() route général et la fonction (middleware)
-//gérer les problèmes de CORS (permet d'utiliser 2 server différent)
+//gérer les problèmes de CORS 
 app.use((req, res, next) => {
     //Autorise l'accès à l'API pour n'importe quelle origine
     res.setHeader('Access-Control-Allow-Origin', '*');

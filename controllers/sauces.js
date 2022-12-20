@@ -86,24 +86,32 @@ exports.deleteSauce = (req, res, next) => {
 //like sauce
 exports.likeSauce = (req, res, next) => {
     if (req.body.like == 1) {
-        //mise à jour objet bdd
-        ModelsSauce.updateOne(
-            { _id: req.params.id },
-            {$push: { usersLiked: req.body.userId },
-            $inc: { likes: +1 }}
-        )
-            .then(() => res.status(200).json({ message: 'Sauce liké !' }))
-            .catch(error => res.status(400).json({ error }));
+        ModelsSauce.findOne({ _id: req.params.id })
+            .then((sauce) => {
+                if (!sauce.usersLiked.includes(req.body.userId)) {
+                    ModelsSauce.updateOne(
+                        { _id: req.params.id },
+                        {
+                            $push: { usersLiked: req.body.userId },
+                            $inc: { likes: +1 }
+                        }
+                    )
+                        .then(() => res.status(200).json({ message: 'Cette sauce vous intéresse !' }))
+                        .catch(error => res.status(400).json({ error }));
+                }
+            })
     }
     //like = 0 pas de like
     if (req.body.like == 0) {
         ModelsSauce.findOne({ _id: req.params.id })
-            .then((sauce) => {            
+            .then((sauce) => {
                 if (sauce.usersLiked.includes(req.body.userId)) {
                     ModelsSauce.updateOne(
                         { _id: req.params.id },
-                        {$pull: { usersLiked: req.body.userId },
-                        $inc: { likes: -1 }}
+                        {
+                            $pull: { usersLiked: req.body.userId },
+                            $inc: { likes: -1 }
+                        }
                     )
                         .then(() => res.status(200).json({ message: 'Cette sauce ne vous intéresse plus !' }))
                         .catch(error => res.status(400).json({ error }));
@@ -112,26 +120,32 @@ exports.likeSauce = (req, res, next) => {
                     //mise à jour objet bdd
                     ModelsSauce.updateOne(
                         { _id: req.params.id },
-                        {$pull: { usersDisliked: req.body.userId },
-                        $inc: { dislikes: -1 }}
+                        {
+                            $pull: { usersDisliked: req.body.userId },
+                            $inc: { dislikes: -1 }
+                        }
                     )
                         .then(() => res.status(200).json({ message: 'Cette sauce ne vous intéresse plus !' }))
                         .catch(error => res.status(400).json({ error }));
                 }
-            //}
+                //}
             })
             .catch(error => res.status(400).json({ error }));
     }
     if (req.body.like == -1) {
-        //mise à jour objet bdd
-        ModelsSauce.updateOne(
-            { _id: req.params.id },
-            {$push: { usersDisliked: req.body.userId },
-            $inc: { dislikes: +1 }}
-        )
-            .then(() => res.status(200).json({ message: 'Sauce disliké !' }))
-            .catch(error => res.status(400).json({ error }));
-        console.log('Sauce disliké !');
+        ModelsSauce.findOne({ _id: req.params.id })
+            .then((sauce) => {
+                if (!sauce.usersDisliked.includes(req.body.userId)) {
+                    ModelsSauce.updateOne(
+                        { _id: req.params.id },
+                        {
+                            $push: { usersDisliked: req.body.userId },
+                            $inc: { dislikes: +1 }
+                        }
+                    )
+                        .then(() => res.status(200).json({ message: 'Cette sauce ne vous intéresse plus !' }))
+                        .catch(error => res.status(400).json({ error }));
+                }
+            })
     }
-    console.log(req.body);
 };

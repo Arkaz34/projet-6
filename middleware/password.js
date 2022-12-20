@@ -18,8 +18,9 @@ module.exports = (req, res, next) =>{
     if (passwordSchema.validate(req.body.password)){
         next();
     }else{
-        /*sinon mot de passe non valide (erreur 401 requête non effectuée 
+        /*sinon mot de passe non valide (erreur 401 requête non effectuée) 
         car il manque des informations d'identification)*/
-        return res.status(401).json({ error : "password non valide" });
+        return res.status(400).json({ message : "Le mot de passe doit contenir entre 5 et 100 caractères avec au moins : 1 majuscule + 1 minuscule + 1 chiffre + 1 symbole" });
     }
 };
+//Le mot de passe doit contenir entre 5 et 100 caractères avec au moins : 1 majuscule + 1 minuscule + 1 chiffre + 1 symbole
